@@ -1,5 +1,8 @@
 package ui;
 
+import model.Color;
+import thread.ColorThread;
+
 public class Main {
 
 	public final static String ESC   = "\u001b[";
@@ -9,58 +12,34 @@ public class Main {
 	public final static String LEFT  = ESC+"D";
 	public final static String NXLN  = ESC+"1E";
 	
-	public final static int[] TEXT_FORMAT = new int[] 
-			{43,44,41};
+	public final static int YELLOW = 43;
+	public final static int BLUE = 44;
+	public final static int RED = 41;
 
 	public static void main(String[] args) throws InterruptedException {
 		
+		char ch = ' ';
+		int max_width = 25;
 		
-		char ch = '*';
-		int sleep = 50;
-		int width = 1;
-		int max = 30;
-		int color = 0;
-		boolean mode = true;
-		String dir1 = DOWN;
-		String dir2 = LEFT;
+		System.out.print(ESC+"2J");
 		
-		System.out.print(ESC+"2J");//Clear screen
-		System.out.print(ESC+"0G"+ESC+"0d");//Cursor in 0,0
+		Color yellow = new Color(YELLOW, 15, ch, 0, 0);
+		Color blue = new Color(BLUE, 5, ch, 0, 15);
+		Color red = new Color(RED, 5, ch, 0, 20);
 		
-		System.out.print(ESC+TEXT_FORMAT[color]+"m"+ch);
-		Thread.sleep(sleep);
-		while(width<max) {
-			width++;
-			color = (color+1)%TEXT_FORMAT.length;
-			String pass = "";
-			
-			for (int i = 0; i < width; i++) {
-				System.out.print(pass);
-				System.out.print(ESC+TEXT_FORMAT[color]+"m"+ch);
-				Thread.sleep(sleep);
-				System.out.print(LEFT);
-				pass = dir1;
-			}
-			
-			for (int i = 1; i < width; i++) {
-				System.out.print(dir2);
-				System.out.print(ESC+TEXT_FORMAT[color]+"m"+ch);
-				Thread.sleep(sleep);
-				System.out.print(LEFT);
-			}
-			
-			mode = !mode;
-			if(mode) {
-				System.out.print(RIGHT);
-				dir1 = DOWN;
-				dir2 = LEFT;
-			}else {
-				System.out.print(DOWN);
-				dir1 = RIGHT;
-				dir2 = UP;				
-			}
-		}
+		ColorThread yellowThread = new ColorThread(yellow, 0, 15, 0, 100);
+		ColorThread blueThread = new ColorThread(blue, 16, 20, 0, 100);
+		ColorThread redThread = new ColorThread(red, 21, max_width, 0, 100);
 		
-		System.out.print("\u001b[49mThis text has restored the background color only.\r\n");
+		yellowThread.start();
+		blueThread.start();
+		redThread.start();
+		
+		yellowThread.join();
+		blueThread.join();
+		redThread.join();
+		
+		
+		System.out.println("\u001b[49m");
 	}
 }
